@@ -13,15 +13,15 @@ m=$3
 nodes_per_job=$4
 
 mkdir -p $DW_JOB_STRIPED/$m/log
-mkdir -p $DW_JOB_STRIPED/$m/out
+mkdir -p $DW_JOB_STRIPED/$m/out/debug
 
 let ntasks=$nodes_per_job*32
 #srun -N $nodes_per_job -n $ntasks shifter $SCRIPTS/multirun_srun.sh $root $trial $m
-srun -N $nodes_per_job -n $ntasks $SCRIPTS/multirun_srun.sh $root $trial $m > $m.srunlog 2> $m.srunerr
+srun -N $nodes_per_job -n $ntasks $SCRIPTS/multirun_srun.sh $root $trial $m 
 
 echo "moving files for $m"
 
-#mv $DW_JOB_STRIPED/$m $RESULTS/$root/$trial/
+mv $DW_JOB_STRIPED/$m $RESULTS/$root/$trial/
 
 echo "done with $m"
 

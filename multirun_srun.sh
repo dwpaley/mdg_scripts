@@ -22,5 +22,4 @@ dials.stills_process \
   output.output_dir=$DW_JOB_STRIPED/$m/out \
   output.logging_dir=$DW_JOB_STRIPED/$m/log \
   > $DW_JOB_STRIPED/$m/log/stdout.log \
-  2> $DW_JOB_STRIPED/$m/log/stderr.log \
-  dispatch.process_percent=3
+  2> $DW_JOB_STRIPED/$m/log/stderr.log
