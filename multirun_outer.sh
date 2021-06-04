@@ -25,6 +25,7 @@ if ! $(mkdir $trial_out); then
   exit # TODO: This should be done per run instead
 fi
 
+command_file=$(mktemp multirun_commands_temp.XXXXXX)
 
 for m in $(cat $run_file); do
 
@@ -33,13 +34,6 @@ for m in $(cat $run_file); do
   h5=$MASTER/run_000${m}.JF07T32V01_master.h5
   run_out=$trial_out/$m
   echo "Process $h5"
-
-  # Guard loop: wait until there's an open slot
-  while true; do
-    n_running=$(jobs | grep multirun_inner | wc -l)
-    if [[ $n_running -lt $n_jobs ]]; then break; fi
-    sleep 5
-  done
 
   # Skip empty/failed master files, which are generally 15K in size
   if ! [ -e $h5 ]; then
@@ -53,19 +47,13 @@ for m in $(cat $run_file); do
   fi
 
   mkdir $run_out
-  mkdir -p $DW_JOB_STRIPED/log/$m
-  mkdir -p $DW_JOB_STRIPED/out/$m
 
-  $SCRIPTS/multirun_inner.sh $root $trial $m $nodes_per_job &
+  echo "$SCRIPTS/multirun_inner.sh $root $trial $m $nodes_per_job &" \
+    >> $command_file
 
 done
 
-echo "Monitoring jobs. Press Ctrl-C when no jobs remain."
-while true; do # TODO: this really should be able to end itself
-  jobs
-  n_running=$(jobs | grep multirun_inner | wc -l)
-  if [[ $n_running -eq 0 ]]; then break; fi
-  sleep 15
-done
-
-
+echo "running jobs in $command_file"
+module load parallel
+cat $command_file > parallel --jobs $n_jobs
+rm $command_file
